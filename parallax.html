@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="tvbarthel : android | open source | developers " />
+    <meta name="description" content="tvbarthel : android | open source | developers | parallax" />
 	<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 	
@@ -28,42 +28,28 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>
-<a name="welcome" class="anchor" href="#welcome"><span class="octicon octicon-link"></span></a>Welcome.</h1>
 
-<p>Hi, we are glad to welcome you on our page. You will find our current projects as well as incoming ideas and achieved works. Have a good time there (: </p>
+<h1>
+<a name="android" class="anchor" href="#parallax"><span class="octicon octicon-link"></span></a>Parallax attempt : a small attempt to perform parallax effect</h1>
+<img src="images/parallax.png" alt="parallax banner">
 
-</br></br>
-<hr><h2>
-<a name="projects" class="anchor" href="#projects"><span class="octicon octicon-link"></span></a>Current projects</h2>
+<p>This project is a first attempt to perform parallax effect. Considered it as a proof concept since no effort has been made to support multiple screen sizes | orientations and different device sensors. </p>
+<p> Motions are based on Accelerometer as almost every Android-powered handset and table has an accelerometer. Moreover, according to the official documentation, <a href="http://developer.android.com/guide/topics/sensors/sensors_motion.html#sensors-motion-accel">"it uses about 10 times less power than the other motion sensors"</a>. For us, low power consumption is essential for animated layout.
 
-<h3>
-<a name="android" class="anchor" href="#googly"><span class="octicon octicon-link"></span></a>Parallax attempt : a small attempt to perform parallax effect</h3>
-<a href="parallax.html"><img src="images/parallax.png" alt="Parallax banner"></a>
+<p>In order to provide "smooth rendering", we have implemented low-pass filter to reduce noise and added a custom Animator to evaluate parallax translation between two sensor values.<p>
+<p>The images used for this demo are entirely based on the 404 GitHub page which has already been designed for a parallax experiment based on mouse motion.</p>
 
-<h3>
-<a name="android" class="anchor" href="#googly"><span class="octicon octicon-link"></span></a>Googly Zoo : a small augmented virtuality open-source project</h3>
-<a href="googlyzoo.html"><img src="images/googly.png" alt="Googly banner"></a>
-<h3>
-<a name="chase-whisply--an-augmented-reality-open-source-project" class="anchor" href="#chase-whisply--an-augmented-reality-open-source-project"><span class="octicon octicon-link"></span></a>Chase Whisply : an augmented reality open-source project</h3>
-
-<a href="chasewhisply.html"><img src="http://technoblimp.files.wordpress.com/2013/09/cw.png" alt="Chase Whisply banner"></a>
+<iframe width="640" height="480" src="https://www.youtube.com/embed/KyNBZLzWxYI" frameborder="0" allowfullscreen></iframe>
+<p>Check out our github page to see our progress and how to use it : <a href="https://github.com/tvbarthel/ParallaxSampleGitHub">Parallax Attempt on GitHub</a>.
 </br>
 </br>
-<hr><h2>
-<a name="projects" class="anchor" href="#projects"><span class="octicon octicon-link"></span></a>Achieved works</h2>
-<h3>
-<a name="moka" class="anchor" href="#moka"><span class="octicon octicon-link"></span></a>Moka : reliable and efficient brainstorming meetings</h3>
-<a href="moka.html"><img src="images/moka.png" alt="Moka banner"></a>
-</br>
-</br>
-<h2>Feel free to leave any comments (= </h2>
+<h2>Discuss and share ideas on our small Parallax Attempt</h2>
 <div id="disqus_thread"></div>
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
         var disqus_shortname = 'tvbarthel'; // required: replace example with your forum shortname
-		var disqus_identifier = 'index_thread';
-		var disqus_title = 'tvbarthel home';
+		var disqus_identifier = 'parallax_thread';
+		var disqus_title = 'Parallax Attempt';
 
         /* * * DON'T EDIT BELOW THIS LINE * * */
         (function() {
@@ -74,10 +60,11 @@
     </script>
     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-	
+		<h3><a href="index.html">Back to home</a></h3>
+
       </section>
     </div>
-
+	
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
