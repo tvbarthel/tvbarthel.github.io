@@ -39,21 +39,21 @@
     <em>Original post can be found on <a href="http://www.reddit.com/r/androiddev/comments/221cuc/a_listview_over_a_photoview_a_uiux_experiment/">reddit</a>.</em>
 
     <p>
-        A couple of days ago, I began a small experiment: I wanted to display an image that can be zoomed in and out, and a list of data associated with this image. I quickly found the great <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a> for the zooming ImageView. And for the list, well, I looked at the ListView component.
+        A couple of days ago, we began a small experiment: we wanted to display an image that can be zoomed in and out, and a list of data associated with this image. We quickly found the great <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a> for the zooming ImageView. And for the list, well, we looked at the ListView component.
     </p>
     
     <p>
-        Then I started to look for the best way of displaying the PhotoView and the ListView at the same time, but without minimizing the space given to the PhotoView and without sacrificing the touch experience.
+        Then we started to look for the best way of displaying the PhotoView and the ListView at the same time, but without minimizing the space given to the PhotoView and without sacrificing the touch experience.
     </p>
     
     <p>
-        What I had to do was simple: making a ListView that can be scrolled over a PhotoView without preventing the user from interacting with the PhotoView. For a better understanding, here is an illustration of the concept.
+        What we had to do was simple: making a ListView that can be scrolled over a PhotoView without preventing the user from interacting with the PhotoView. For a better understanding, here is an illustration of the concept.
     </p>
     
     <img src="images/a_listview_over_a_photoview.png" alt="a listview over a photoview">
     
     <p>
-        Since I’m still learning Android development, it took me some time to find this rather simple solution to implement such a ListView:
+        Since we are still learning Android development, it took us some time to find this rather simple solution to implement such a ListView:
     </p>
     
 <pre>
@@ -69,7 +69,7 @@
 </pre>    
 
     <p>
-        By overriding the onTouchEvent and setting some paddings to my ListView, I had what I wanted. Here is a shortvideo of a test app using that trick.        
+        By overriding the onTouchEvent and setting some paddings to my ListView, We had what we wanted. Here is a shortvideo of a test app using that trick.        
     </p>
     
     <iframe width="640" height="480" src="https://www.youtube.com/embed/ko4aaXUqtMw" frameborder="0" allowfullscreen></iframe>
