@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="tvbarthel : android | open source | developers | googlyzoo" />
+	<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+	
+
+    <title>tvbarthel</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/tvbarthel">View on GitHub</a>
+
+          <h1 id="project_title"><a href="index.html">TVBarthel Organisation</a></h1>
+          <h2 id="project_tagline">Android Enthusiasts | Open Source Believers | Cheerful Developers</h2>
+
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+    <h1>
+        <a name="android" class="anchor" href="#googly">
+            <span class="octicon octicon-link"></span>
+        </a>
+        A ListView over a PhotoView, a UI/UX experiment.
+    </h1>
+        
+    <em>Original post can be found on <a href="http://www.reddit.com/r/androiddev/comments/221cuc/a_listview_over_a_photoview_a_uiux_experiment/">reddit</a>.</em>
+
+    <p>
+        A couple of days ago, I began a small experiment: I wanted to display an image that can be zoomed in and out, and a list of data associated with this image. I quickly found the great <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a> for the zooming ImageView. And for the list, well, I looked at the ListView component.
+    </p>
+    
+    <p>
+        Then I started to look for the best way of displaying the PhotoView and the ListView at the same time, but without minimizing the space given to the PhotoView and without sacrificing the touch experience.
+    </p>
+    
+    <p>
+        What I had to do was simple: making a ListView that can be scrolled over a PhotoView without preventing the user from interacting with the PhotoView. For a better understanding, here is an illustration of the concept.
+    </p>
+    
+    <img src="images/a_listview_over_a_photoview.png" alt="a listview over a photoview">
+    
+    <p>
+        Since I’m still learning Android development, it took me some time to find this rather simple solution to implement such a ListView:
+    </p>
+    
+<pre>
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        boolean handled = super.onTouchEvent(ev);
+        View child = getChildAt(0);
+        if (child != null && ev.getY() < child.getY()) {
+            handled = false;
+        }
+        return handled;
+    }
+</pre>    
+
+    <p>
+        By overriding the onTouchEvent and setting some paddings to my ListView, I had what I wanted. Here is a shortvideo of a test app using that trick.        
+    </p>
+    
+    <iframe width="640" height="480" src="https://www.youtube.com/embed/ko4aaXUqtMw" frameborder="0" allowfullscreen></iframe>
+
+    <p>
+        The source code of the test app is available on <a href="https://github.com/tvbarthel/Devred-PE-2014">github</a>.        
+    </p>
+    </br>
+    </br>
+    <h2>Discuss and share idea on this experiment</h2>
+    <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'tvbarthel'; // required: replace example with your forum shortname
+            var disqus_identifier = 'a_listview_over_a_photoview_thread';
+            var disqus_title = 'A listview over a photoview';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            <h3><a href="index.html">Back to home</a></h3>
+
+      </section>
+    </div>
+	
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
