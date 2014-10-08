@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="tvbarthel : android | open source | developers | googlyzoo" />
+	<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+	
+
+    <title>tvbarthel</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/tvbarthel">View on GitHub</a>
+
+          <h1 id="project_title"><a href="index.html">TVBarthel Organisation</a></h1>
+          <h2 id="project_tagline">Android Enthusiasts | Open Source Believers | Cheerful Developers</h2>
+
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+    <h1>
+        <a name="android" class="anchor" href="#a-listview-over-a-photoview-a-UI-UX-experiment">
+            <span class="octicon octicon-link"></span>
+        </a>
+        Blur Dialog Fragment, a small step into the world of blur effect.
+    </h1>
+</br>
+    <p>
+	<h2>Motivations</h2>
+        A couple of weeks ago, we started to play with blur effect on Android. We found that blurred components enhanced pretty well any modern design app. 
+    </p>
+    
+    <p>
+        Like any new hotness, we wanted to use it with caution since we could be tend to apply such an effect everywhere. The use case on which we finally based our playground was the DialogFragment. For us, the goal of a Dialog is to bring emphasis on a component when no other action should be available. Thus, blurring the entire screen displayed in the background of a dialog actually make sense as it helps to bring the emphasis we are looking for : the user is even less distracted by the content under dialog than he is with only a dimming effect. Even if in pratice more and more dialogs can (and must) be replaced by better component in term of user experience, we believe that they are still relevant for some use-cases so let's see how we managed to implement the BlurDialogFragment class!
+    </p>
+    
+    <p>
+	<h2>An impressive study made by Pavel Dudka</h2>
+        First of all, we based the blurring part on the impressive works of Pavel Dudka :  <a href="http://trickyandroid.com/advanced-blurring-techniques/">Advanced blurring techniques</a>. We were very impressed by the efficiency of the FastBlur algorithm once the source image was downscaled. To summarize the Pavel's approach, we don't need an hight-quality image since "blurring process  itself is all about loosing pixels". That's why a downscale factor is applied to the source Bitmap in order to reduce the time of the blurring process. With this pre-processing and according to his benchmark, the FastBlur algorithm is 6 times faster than ScriptIntrinsicBlur from RenderScript.
+    </p>
+    
+    <img src="http://trickyandroid.com/content/images/2014/Mar/4.png" alt="Benchmark from Pavel Dudka study">
+    
+    <p>
+		Despite his results, Pavel wrote the following warning concerning the memory allocation used by the FastBlur algorithm :
+    </p>
+    
+<pre>
+    WARNING! Please note that FastBlur uses hell a lot of additional
+   memory (it is copying entire bitmap into temp buffers), so even if
+    it works perfect for small bitmaps, I would not recommend using
+        it for blurring entire screen since you can easily get 
+        OutOfMemoryException on low-end devices. Use your best
+                              judgement.
+</pre>    
+
+    <p>
+        Unfortunately, "blurring the entire screen" was exactly what we were looking for. Therefore we decided to take Pavel's warning into account and find out by ourselves the memory trace of both blurring methods. Our goal was to provide the more efficient implementation which means finding the best ratio between execution time and memory allocation. For the whole set of metrics presented bellow, we used a Nexus 4 running a 4.4.4 stock rom.
+    </p>
+	
+	<p>
+		<h2>Let's start with the FastBlur approach.</h2>
+		<li>First of all, we need to capture the entire screen in order to apply our blur effect. We <a href="https://github.com/tvbarthel/BlurDialogFragment/blob/master/lib/src/main/java/fr/tvbarthel/lib/blurdialogfragment/BlurDialogFragment.java#L335">simply retrieve the drawing cache of the DecorView</a> which leads to an allocation of 3072ko.</li>
+		<li>Then, we allocate a new Bitmap (on which the FastBlur will be launched) <a href="https://github.com/tvbarthel/BlurDialogFragment/blob/master/lib/src/main/java/fr/tvbarthel/lib/blurdialogfragment/BlurDialogFragment.java#L238">by applying a downscale factor of 8.</a> As mentioned bellow, blurring is all about "loosing pixels", that's why in addition we use <a href="http://developer.android.com/reference/android/graphics/Bitmap.Config.html">Bitmap.Config.RGB_565</a> to reduce by half the size of this Bitmap (only 2 bytes are used for each pixel instead of 4). The resulting allocation is equal to 192ko.</li>
+		<li>Finally, we apply the FastBlur algorithm which <a href="https://github.com/tvbarthel/BlurDialogFragment/blob/master/lib/src/main/java/fr/tvbarthel/lib/blurdialogfragment/FastBlurHelper.java#L69">works with a buffer</a>. Therefore, another memory allocation of 192ko is performed. </li>
+		</br>
+				<pre>
+                                Fast blur
+                         3072ko (screen capture)
+                                    +
+                        192ko (DownScaled+RGB_565)
+                                    +
+                      192ko(Buffer used by FastBlur)
+                                    =
+                                 3456ko
+		</pre>
+	</p>
+	
+	<p>
+		<h2> And what's about ScriptIntrinsicBlur ?</h2>
+		<li>The first step is exactly the same : 3072ko.</li>
+		<li>Then, we tryied to apply the same downscale factor as well as change the encoded format. But unfortunately, an RSIllegalArgumentException was thrown. The ScriptIntrinsicBlur seems <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.4_r1/android/support/v8/renderscript/ScriptIntrinsicBlur.java#53">only to work with ARGB_8888.</a> Therefore, by keeping the Bitmap.Config.ARGB_8888, the size of the allocated Bitmap is twice bigger : 384ko.</li>
+		<li>Finally, we apply the ScriptIntrinsicBlur using RenderScript which doesn't need any additional buffer.</li>
+		</br>
+		<pre>
+                              RenderScript
+                         3072ko (screen capture)
+                                    +
+                       384ko (DownScaled+ARGB_8888)
+                                    =
+                                 3456ko
+		</pre>
+		</br>
+		According to our results and the Pavel's study, the FastBlur approach is 6 times faster than RenderScript for the same memory trace. In fact, despite the buffer, the FastBlur approach can be performed on a RGB_565 encoded Bitmap which reduces the memory allocation by half whereas the ScriptIntrinsicBlur can only be applied on a ARGB_8888 encoded Bitmap. Therefore, we decided to use FastBlur instead of RenderScript for our BlurDialogFragment.
+		</br>
+		</br>
+		If we missed something, don't hesitate to give us your input by using the disqus at the end! We will really appreciate that. You can also directly contribute to our project as explained <a href="https://github.com/tvbarthel/BlurDialogFragment#contributing">here!</a>
+	</p>
+	
+	<p>
+		<h2>Bring the magic</h2>
+		Once the blurring part was achieved, we simply had to encapsulate the whole behaviour into a BlurDialogFragment which process blurring effect off the UI thread. Here is a screenshot of the result:
+		</br>		
+		</br>		
+		<img src="https://github.com/tvbarthel/BlurDialogFragment/raw/master/static/full_screen_blur.png" style="width:400px; margin:0 auto; display:block;" alt="Have a glance at BlurDialogFragment">
+		
+	</p>
+
+    <p>
+	</br>
+		As usual the whole project is open-source and can be found on <a href="https://github.com/tvbarthel/BlurDialogFragment">GitHub</a>.
+		</br></br>
+		In addition, a sample app can be downloaded from the PlayStore. It allows you to play with the blur radius and the downscale parameters in order to obtain the wished effect.
+		</br></br>
+		Don't hesitate to use the gradle dependency to use it in your project!
+		</br></br>
+		Any feedback, both positive and negative, are welcome (=
+    </p>
+	<p>
+		<h2>References</h2>
+		[1] <a href="http://trickyandroid.com/advanced-blurring-techniques/">http://trickyandroid.com/advanced-blurring-techniques/</a> </br>
+		[2] <a href="http://developer.android.com/reference/android/graphics/Bitmap.Config.html">http://developer.android.com/reference/android/graphics/Bitmap.Config.html</a></br>
+		[3] <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.4_r1/android/support/v8/renderscript/ScriptIntrinsicBlur.java#53">http://grepcode.com/.../support/v8/renderscript/ScriptIntrinsicBlur.java#53</a></br>
+		[4] <a href="https://github.com/tvbarthel/BlurDialogFragment">https://github.com/tvbarthel/BlurDialogFragment</a></br>
+	</p>
+	</br>
+	</br>
+    <h2>Discuss and share ideas on this experiment</h2>
+    <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'tvbarthel'; // required: replace example with your forum shortname
+            var disqus_identifier = 'blur_dialog_fragment';
+            var disqus_title = 'Blur Dialog Fragment, a small step into the world of blur effect';
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            <h3><a href="index.html">Back to home</a></h3>
+
+      </section>
+    </div>
+	
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
